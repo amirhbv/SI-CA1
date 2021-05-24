@@ -34,7 +34,7 @@ var(colData)
 sqrt(var(colData))
 
 # F.
-ggplot(df, aes(x=GRE.Score)) +
+ggplot(data=df, aes(x=GRE.Score)) +
     geom_density(alpha=.2, fill="red") +
     geom_vline(xintercept=mean(colData), size=1.5, color="green") +
     geom_vline(xintercept=median(colData), size=1.5, color="blue")
@@ -70,3 +70,32 @@ boxplot(colData)
 
 
 ## Part2
+colData = df$University.Rating
+
+# A.
+colDf = as.data.frame(
+    table(
+        colData,
+        dnn=list("University Rating")
+    ),
+    responseName = "freq"
+)
+
+colDf$percentage = colDf$freq * 100 / sum(colDf$freq)
+
+# B.
+ggplot(data=df, aes(x=University.Rating, label=scales::percent(prop.table(stat(count))))) +
+    geom_bar(fill=rainbow(length(unique(df$University.Rating)))) +
+    geom_text(stat = 'count', position = position_dodge(.9), vjust = -0.5, size = 3)
+
+# C.
+library(dplyr)
+ggplot(data=df %>% group_by(University.Rating) %>% summarize(count=n()),
+    aes(x=reorder(as.factor(University.Rating), count), y=count, fill=University.Rating)) +
+    geom_bar(stat="identity") +
+    coord_flip()
+
+# D.
+ggplot(data=df, aes(x=University.Rating, y=Chance.of.Admit, color = University.Rating)) +
+    geom_violin() +
+    geom_boxplot(width=0.1)
